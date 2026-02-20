@@ -6,11 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar',
     ];
 
     /**
@@ -44,5 +46,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function ownedRooms()
+    {
+        return $this->hasMany(Room::class, 'owner_id');
+    }
+
+    public function roomMembers()
+    {
+        return $this->hasMany(RoomMember::class);
+    }
+
+    public function joinedRooms()
+    {
+        return $this->belongsToMany(Room::class, 'room_members');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 }
